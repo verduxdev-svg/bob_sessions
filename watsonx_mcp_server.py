@@ -1,14 +1,14 @@
 import os
 import requests
 from dotenv import load_dotenv
-from mcp.server.fastmcp import FastMCP
+from mcp.server import MCPServer
 
 load_dotenv()
 
-# Initialize the MCP Server
-mcp = FastMCP("WatsonxCritic")
+# In MCP SDK v2, FastMCP was renamed to MCPServer
+mcp = MCPServer("WatsonxCritic")
 
-def get_iam_token():
+def get_iam_token() -> str:
     """Programmatically generate an IAM access token."""
     api_key = os.getenv("IBM_CLOUD_API_KEY")
     url = "https://iam.cloud.ibm.com/identity/token"
@@ -22,7 +22,7 @@ def get_iam_token():
 @mcp.tool()
 def watsonx_security_audit(code_diff: str) -> str:
     """
-    Sends code diffs to watsonx.ai (Granite-3-8b-instruct) for OWASP security analysis.
+    Sends code diffs to watsonx.ai for OWASP security analysis.
     Returns a markdown report and SARIF JSON.
     """
     token = get_iam_token()
