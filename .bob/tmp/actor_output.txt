@@ -1,0 +1,22 @@
+After format and structure of the table: SQL Injection, A03:2021 – Injection
+
+F-01
+- Vulnerability name: SQL Injection
+- OWASP Top 10 category: A03:2021 – Injection
+- Severity: Critical
+- Line numbers: 17, 19
+- Proof-of-concept exploit description: 
+  This occurs when an attacker can manipulate the SQL query by injecting malicious SQL code into the `user_id` input. In the provided code, the `fetch_user_data` function concatenates the `user_id` input directly into the SQL query string, allowing an attacker to modify the query's behavior.
+  By passing a malicious payload as the `user_id` value, the attacker can manipulate the query to execute unintended SQL commands. In the example usage, the payload `'1' OR '1'='1'` is used to bypass the intended `WHERE id = '1'` condition and return all rows from the `users` table.
+- Recommended fix:
+  ```python
+  def fetch_user_data(user_id):
+      # ... other code ...
+      
+      # Recommended fix: Use parameterized query to prevent SQL injection
+      query = "SELECT * FROM users WHERE id = ?"
+      cursor.execute(query, (user_id,))
+      
+      # ... other code ...
+  ```
+  The recommended fix uses a parameterized query with a placeholder (`?`) instead of directly concatenating the `user_id` value into the query string. The `cursor.execute` method is then called with the query string and a tuple containing the `user_id` value, ensuring that the input value is properly sanitized and treated as a separate parameter by the SQLite library, preventing SQL injection attacks.

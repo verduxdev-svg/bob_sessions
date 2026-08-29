@@ -43,7 +43,7 @@ def watsonx_security_audit(code_diff: str) -> str:
             "max_new_tokens": 1500,
             "min_new_tokens": 10
         },
-        "model_id": "ibm/granite-3-8b-instruct",
+        "model_id": "ibm/granite-4-h-small",
         "project_id": project_id
     }
     

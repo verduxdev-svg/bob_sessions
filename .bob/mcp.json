@@ -1,12 +1,14 @@
 {
-   "mcpServers": {
+  "mcpServers": {
     "watsonx-critic": {
-      "command": "python",
-      "args": ["watsonx_mcp_server.py"],
+      "command": "C:/Python314/python.exe",
+      "args": [
+        "d:/Promt/bob_sessions/watsonx_mcp_server.py"
+      ],
       "env": {
-        "IBM_CLOUD_API_KEY": "${IBM_CLOUD_API_KEY}",
-        "WATSONX_PROJECT_ID": "${WATSONX_PROJECT_ID}",
-        "WATSONX_URL": "${WATSONX_URL}"
+        "IBM_CLOUD_API_KEY": "2YYihLJxrxnb8ZgIW5WCx6A05TBWi1oz2DQ7InbjDYyA",
+        "WATSONX_PROJECT_ID": "778c398d-aa2f-42e2-b69f-dbd659038628",
+        "WATSONX_URL": "https://us-south.ml.cloud.ibm.com"
       }
     }
   }

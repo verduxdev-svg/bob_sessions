@@ -1,4 +1,4 @@
-API_KEY = "12345"
+import sqlite3
 
 def fetch_user_data(user_id):
     """
