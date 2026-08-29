@@ -89,3 +89,8 @@ id_dsa
 # ============================================
 # DO NOT REMOVE ABOVE PATTERNS
 # ============================================
+.env
+node_modules/
+secrets/
+*.pem
+bob_sessions/
