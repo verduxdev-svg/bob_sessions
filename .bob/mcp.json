@@ -1,0 +1,13 @@
+{
+   "mcpServers": {
+    "watsonx-critic": {
+      "command": "python",
+      "args": ["watsonx_mcp_server.py"],
+      "env": {
+        "IBM_CLOUD_API_KEY": "${IBM_CLOUD_API_KEY}",
+        "WATSONX_PROJECT_ID": "${WATSONX_PROJECT_ID}",
+        "WATSONX_URL": "${WATSONX_URL}"
+      }
+    }
+  }
+}
