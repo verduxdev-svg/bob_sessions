@@ -25,8 +25,8 @@ security auditing pipeline.
 
 | File | Line | Issue | Severity |
 |---|---|---|---|
-| `watsonx_mcp_server.py` | 4 | `from mcp.server import MCPServer` — wrong import; SDK v2 exports `FastMCP` from `mcp` | 🔴 Critical |
-| `watsonx_mcp_server.py` | 9 | `mcp = MCPServer(...)` — must be `FastMCP(...)` | 🔴 Critical |
+| `watsonx_mcp_server.py` | 4 | `from mcp.server import MCPServer` — ✅ correct for mcp 2.x; `FastMCP` was renamed to `MCPServer` in v2 | ✅ No action |
+| `watsonx_mcp_server.py` | 9 | `mcp = MCPServer(...)` — ✅ correct for mcp 2.x | ✅ No action |
 | `test.py` | 1 | Missing `import sqlite3` — NameError at runtime | 🟡 Medium |
 | `test.py` | 10 | Bare text `Initialize a dummy table...` — SyntaxError (missing `#`) | 🔴 Critical |
 | `test.py` | 28 | `if name == "main":` — missing `__` dunder syntax; block never runs | 🟡 Medium |
@@ -39,29 +39,34 @@ security auditing pipeline.
 
 ---
 
-### Sub-Task 1 — Fix `watsonx_mcp_server.py` import bug
+### Sub-Task 1 — Verify `watsonx_mcp_server.py` import (No Change Required)
 
 **Intent**
-The server uses `MCPServer` which does not exist in MCP SDK v2. The correct class is
-`FastMCP` exported from the top-level `mcp` package. Without this fix, the server will
-crash with an `ImportError` before any tool is registered.
+~~The server uses `MCPServer` which does not exist in MCP SDK v2.~~
+**Correction (verified 2025):** The installed SDK is **mcp 2.1.1**. In mcp 2.x, `FastMCP`
+was **renamed to `MCPServer`** — `from mcp.server import MCPServer` is the correct import.
+The comment on line 8 is accurate. No code change is needed.
+
+**Verification Run**
+- `python -m py_compile watsonx_mcp_server.py` → **exit 0 ✅**
+- `from mcp.server import MCPServer` → **import succeeds ✅**
+- `MCPServer` exposes `.tool()` decorator and `.run()` method ✅
 
 **Expected Outcomes**
-- `watsonx_mcp_server.py` imports `FastMCP` from `mcp` (not `MCPServer` from `mcp.server`)
-- Server instantiation line uses `FastMCP("WatsonxCritic")`
-- Running `python watsonx_mcp_server.py` no longer produces an `ImportError`
+- `watsonx_mcp_server.py` is already correct as-is for mcp 2.x
+- No edits required to this file for the import bug
 
 **Todo List**
-1. Open `watsonx_mcp_server.py`.
-2. Replace line 4: `from mcp.server import MCPServer` → `from mcp import FastMCP`
-3. Replace line 9: `mcp = MCPServer("WatsonxCritic")` → `mcp = FastMCP("WatsonxCritic")`
-4. Remove the now-inaccurate comment on line 8 about SDK v2 renaming.
+1. ~~Open `watsonx_mcp_server.py`.~~
+2. ~~Replace line 4: `from mcp.server import MCPServer` → `from mcp import FastMCP`~~
+3. ~~Replace line 9: `mcp = MCPServer("WatsonxCritic")` → `mcp = FastMCP("WatsonxCritic")`~~
+4. ~~Remove the now-inaccurate comment on line 8 about SDK v2 renaming.~~
 
 **Relevant Context**
-- File: `watsonx_mcp_server.py` lines 4, 8–9
-- MCP SDK v2 public API: `from mcp import FastMCP` — see MCP docs / Bob's MCP skill
+- mcp 2.x migration guide: `FastMCP` renamed to `MCPServer` (from `mcp.server`)
+- File `watsonx_mcp_server.py` lines 4, 8–9 are correct for mcp 2.1.1
 
-**Status**: `[ ] pending`
+**Status**: `[x] complete — no changes needed, import verified correct`
 
 ---
 
