@@ -5,7 +5,6 @@ from mcp.server import MCPServer
 
 load_dotenv()
 
-# In MCP SDK v2, FastMCP was renamed to MCPServer
 mcp = MCPServer("WatsonxCritic")
 
 def get_iam_token() -> str:
@@ -61,5 +60,5 @@ def watsonx_security_audit(code_diff: str) -> str:
     return response.json()["results"][0]["generated_text"]
 
 if __name__ == "__main__":
-    # Start the server using stdio transport (required by Bob IDE)
+    
     mcp.run(transport='stdio')

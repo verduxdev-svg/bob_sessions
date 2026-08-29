@@ -7,7 +7,7 @@ def fetch_user_data(user_id):
     connection = sqlite3.connect(':memory:')
     cursor = connection.cursor()
 
-Initialize a dummy table for the environment
+#Initialize a dummy table for the environment
     cursor.execute("CREATE TABLE users (id TEXT, name TEXT, email TEXT)")
     cursor.execute("INSERT INTO users VALUES ('1', 'Admin User', 'admin@example.com')")
     cursor.execute("INSERT INTO users VALUES ('2', 'Standard User', 'user@example.com')")
@@ -25,12 +25,12 @@ Initialize a dummy table for the environment
     finally:
         connection.close()
 
-if name == "main":
+if __name__ == "__main__":
     # Test case 1: Standard intended behavior
     print("Standard Query Results:")
     print(fetch_user_data("1"))
 
-Test case 2: Exploitation of the SQL injection vulnerability
+#Test case 2: Exploitation of the SQL injection vulnerability
     print("\nMalicious Query Results (SQL Injection):")
     malicious_payload = "1' OR '1'='1"
     print(fetch_user_data(malicious_payload))
