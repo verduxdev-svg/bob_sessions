@@ -1,45 +1,55 @@
 # Bob Session Screenshots — Evidence Folder
 
-This directory holds PNG screenshots of Bob IDE task/session consumption summaries.
-These screenshots are required by the hackathon judging rubric to validate Bob usage.
+This directory holds screenshots and screen recordings documenting Bob IDE usage
+and the WatsonxCritic pipeline running end-to-end. These are required by the
+hackathon judging rubric to validate Bob usage throughout development.
 
-## Required Screenshots
+## Screenshots Present
 
-Add the following screenshots to this directory:
-
-| Filename | What to capture |
+| Filename | What it shows |
 |----------|----------------|
-| `bob-session-vulnerable-app-review.png` | Bob task summary for the `vulnerable_app.py` Actor-Critic review session |
-| `bob-session-test-py-review.png` | Bob task summary for the `test.py` Actor-Critic review session |
-| `bob-session-mcp-server-build.png` | Bob task summary for the MCP server implementation session |
-| `orchestrate-tool-registration.png` | watsonx Orchestrate — Tool registration screen showing `watsonx_security_audit` connected |
-| `orchestrate-agent-config.png` | watsonx Orchestrate — Security Approver Agent configuration screen |
-| `orchestrate-agent-test.png` | watsonx Orchestrate — Agent responding to a test PR diff (approve/reject output) |
+| `bob-session-vulnerable-app-review.jpeg` | Bob task session — `vulnerable_app.py` Actor-Critic security review |
+| `bob-session-test-py-review.png` | Bob task session — `test.py` Actor-Critic security review |
+| `Mcp_server.png` | MCP server registered and active in Bob IDE |
+| `Behaviourl.jpeg` | watsonx Orchestrate Security Approver Agent behaviour screen |
+| `Tools in watsonxCritic copy 2.jpeg` | watsonx Orchestrate — `watsonx_security_audit` tool registered |
+| `Agent_test.jpeg` | watsonx Orchestrate — Agent responding with PR REJECTED decision |
+| `Test resul of agent.jpeg` | watsonx Orchestrate — Agent test result output |
 
-## How to Take Screenshots in Bob IDE (Windows)
+## How These Were Captured
 
-1. Complete a task in Bob IDE
-2. Open the **Task** panel (left sidebar) and click on the completed task
+### Bob IDE sessions (Windows)
+
+1. Completed a task in Bob IDE (SecurityReviewer mode)
+2. Opened the **Task** panel in the left sidebar and clicked the completed task
 3. The consumption summary shows token usage, tool calls, and time elapsed
-4. Press **Win + Shift + S** or open **Snipping Tool**
-5. Select the Bob IDE window showing the task summary
-6. Save as PNG with the filename from the table above
-7. Place the PNG file in this `screenshots/` directory
-8. Commit with: `git add screenshots/*.png && git commit -m "chore: add Bob session evidence screenshots"`
+4. Captured with **Win + Shift + S** (Snipping Tool)
+5. Saved into this directory
 
-## How to Take Screenshots of watsonx Orchestrate
+### watsonx Orchestrate screens
 
-1. Log in to IBM Cloud: https://cloud.ibm.com
-2. Launch your watsonx Orchestrate instance from the Resource List
-3. Navigate to each screen listed in the table above
-4. Press **Win + Shift + S** (Windows) or **Cmd + Shift + 4** (macOS)
-5. Save PNGs with the filenames above into this directory
+1. Logged into IBM Cloud → launched the watsonx Orchestrate instance
+2. Navigated to the Security Approver Agent and Tools screens
+3. Captured with **Win + Shift + S** (Snipping Tool)
+4. Saved into this directory
 
-## Note
+## What Each Screenshot Proves
 
-The review session evidence also exists as Markdown files in [`review_summary/`](../review_summary/):
+| Screenshot | Judging rubric evidence |
+|---|---|
+| `bob-session-vulnerable-app-review.jpeg` | Bob was actively used to run the Actor-Critic review skill on `vulnerable_app.py` |
+| `bob-session-test-py-review.png` | Bob was actively used to run the Actor-Critic review skill on `test.py` |
+| `Mcp_server.png` | The `watsonx_security_audit` MCP tool is registered in Bob IDE and callable |
+| `Tools in watsonxCritic copy 2.jpeg` | The MCP tool is discoverable inside watsonx Orchestrate |
+| `Behaviourl.jpeg` | The Security Approver Agent is configured with its instruction persona |
+| `Agent_test.jpeg` | Live end-to-end test: agent received a SQL-injection diff and responded PR REJECTED |
+| `Test resul of agent.jpeg` | Confirms the REJECT output with CWE-89 reasoning from IBM Granite |
+
+## Supplementary evidence
+
+The full written Actor-Critic outputs are also committed in [`review_summary/`](../review_summary/):
 - `vulnerable_app_review.md` — full Actor-Critic report for `vulnerable_app.py`
 - `test_py_review.md` — full Actor-Critic report for `test.py`
 - `requirements_txt_review.md` — dependency audit report
 
-These Markdown reports supplement (but do not replace) the required PNG screenshots.
+These Markdown reports supplement the screenshots.

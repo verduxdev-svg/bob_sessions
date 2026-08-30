@@ -16,7 +16,7 @@ in watsonx Orchestrate was given a SQL-injection code diff and responded:
 >
 > *Reviewed by: Security Approver Agent | IBM Granite | watsonx Orchestrate*
 
-Evidence: [`screenshots/orchestrate-agent-test.png`](screenshots/orchestrate-agent-test.png)
+Evidence: [`screenshots/Agent_test.jpeg`](screenshots/Agent_test.jpeg) · [`screenshots/Test resul of agent.jpeg`](<screenshots/Test resul of agent.jpeg>)
 
 ---
 
@@ -44,7 +44,7 @@ mentions any source file and the system:
 | Evidence | Location |
 |---|---|
 | MCP server with registered `watsonx_security_audit` tool | [`watsonx_mcp_server.py`](watsonx_mcp_server.py) |
-| Live end-to-end execution (PR REJECTED response) | [`screenshots/orchestrate-agent-test.png`](screenshots/orchestrate-agent-test.png) |
+| Live end-to-end execution (PR REJECTED response) | [`screenshots/Agent_test.jpeg`](screenshots/Agent_test.jpeg) |
 | Three completed Actor-Critic review reports | [`review_summary/`](review_summary/) |
 | Actor-Critic review skill (88 sections) | [`.bob/skills/review/SKILL.md`](.bob/skills/review/SKILL.md) |
 | Environment variable template with credential sources | [`.env.example`](.env.example) |
@@ -279,8 +279,13 @@ Full architecture and ngrok setup: [`ARCHITECTURE.md`](ARCHITECTURE.md)
 
 | Evidence type | Location |
 |---|---|
-| Bob session screenshots | [`screenshots/`](screenshots/) |
-| Orchestrate agent live test result | [`screenshots/orchestrate-agent-test.png`](screenshots/orchestrate-agent-test.png) |
+| Bob session — `vulnerable_app.py` review | [`screenshots/bob-session-vulnerable-app-review.jpeg`](screenshots/bob-session-vulnerable-app-review.jpeg) |
+| Bob session — `test.py` review | [`screenshots/bob-session-test-py-review.png`](screenshots/bob-session-test-py-review.png) |
+| MCP server in Bob IDE | [`screenshots/Mcp_server.png`](screenshots/Mcp_server.png) |
+| Orchestrate agent behaviour | [`screenshots/Behaviourl.jpeg`](screenshots/Behaviourl.jpeg) |
+| Orchestrate tools registered | [`screenshots/Tools in watsonxCritic copy 2.jpeg`](<screenshots/Tools in watsonxCritic copy 2.jpeg>) |
+| Orchestrate agent live test (PR REJECTED) | [`screenshots/Agent_test.jpeg`](screenshots/Agent_test.jpeg) |
+| Orchestrate agent test result | [`screenshots/Test resul of agent.jpeg`](<screenshots/Test resul of agent.jpeg>) |
 | Actor-Critic review reports | [`review_summary/`](review_summary/) |
 
 ---
