@@ -174,7 +174,8 @@ and what it replaces in the manual workflow.
 | **Parallel tool execution** | During each review session Bob runs `read_file` (file ingestion), `use_skill` (skill load), and `mcp__watsonx-critic__watsonx_security_audit` (cloud inference) as independent parallel tool calls where there are no data dependencies — cutting per-session latency versus sequential execution. | Implicit in Agent mode scheduler |
 | **Write-guard file regex** | The `edit` permission group in the custom mode is scoped to `review_summary/.*\.md$` only. Bob physically cannot write to source files during a review — eliminating the risk of accidentally modifying `vulnerable_app.py` or `test.py` mid-audit. | [`.bob/custom_modes.yaml`](.bob/custom_modes.yaml) line 39–41 |
 | **`@filename` context injection** | Typing `@vulnerable_app.py` in the chat injects the full file content into the session context before the skill runs — no manual copy-paste of code required. | Bob IDE chat UX |
-| **Todo list task tracking** | Bob uses `update_todo_list` throughout each session to track Actor pass → Critic pass → MCP call → report write as discrete checkpoints — giving a visible audit trail of every step in the Bob session summary screenshots. | Visible in [`screenshots/bob-session-vulnerable-app-review.jpeg`](screenshots/bob-session-vulnerable-app-review.jpeg) |
+| **Todo list task tracking** | Bob uses `update_todo_list` throughout each session to track Actor pass → Critic pass → MCP call → report write as discrete checkpoints — giving a visible audit trail of every step in the Bob session summary screenshots. | Visible in [`screenshots/bob-session-vulnerable-app-review.jpeg`](screenshots/bob-session-vulnerable-app-review.jpeg) · [`screenshots/bob usage.png`](<screenshots/bob usage.png>) |
+| **Plan mode + sub-task orchestration** | Bob's Plan mode was used to design the 4-step Architecture Flow (Bob IDE → MCP stdio → watsonx.ai → SARIF) and break the work into 6 tracked sub-tasks before switching to Agent mode for execution. | [`screenshots/Bob-work-flow.png`](screenshots/Bob-work-flow.png) · [`screenshots/bob usage.png`](<screenshots/bob usage.png>) |
 
 ### Quantified impact: manual vs automated
 
@@ -357,10 +358,8 @@ Full architecture and ngrok setup: [`ARCHITECTURE.md`](ARCHITECTURE.md)
 | Bob review output — `vulnerable_app.py` | [`screenshots/bob-session-vulnerable-app-review.jpeg`](screenshots/bob-session-vulnerable-app-review.jpeg) | Full Actor-Critic report rendered in Bob preview: 8 findings, CRITICAL SQL injection, 0 FPs |
 | Bob review output — `test.py` | [`screenshots/bob-session-test-py-review.png`](screenshots/bob-session-test-py-review.png) | Full Actor-Critic report: 8 findings, 2 FPs dismissed, SQL injection PoC at line 35 |
 | MCP server source in Bob editor | [`screenshots/Mcp_server.png`](screenshots/Mcp_server.png) | `watsonx_mcp_server.py` open in Bob with `@mcp.tool()` and `watsonx_security_audit` visible |
-
-> **⚠️ Task session summary screenshots** (showing Bob's Tasks panel with tool call logs and
-> token usage) are captured separately. See [`BOB_TASK_SESSIONS.md`](BOB_TASK_SESSIONS.md)
-> for capture instructions and add them as `screenshots/bob-task-session-*.png`.
+| Bob Plan mode — architecture flow & sub-task plan | [`screenshots/Bob-work-flow.png`](screenshots/Bob-work-flow.png) | Bob IDE in Plan mode: Architecture Flow diagram (Bob IDE → MCP → watsonx.ai → SARIF), 4 sub-tasks defined |
+| Bob task execution — full session flow | [`screenshots/bob usage.png`](<screenshots/bob usage.png>) | Bob Tasks panel: "All tasks completed!" (5/5), 6-step execution flow from `.env.example` → SecurityReviewer → Final git push, 14 files changed |
 
 ### watsonx Orchestrate evidence (in repo)
 
