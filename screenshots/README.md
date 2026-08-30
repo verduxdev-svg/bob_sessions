@@ -1,55 +1,102 @@
-# Bob Session Screenshots — Evidence Folder
+# Screenshots — Evidence Index
 
-This directory holds screenshots and screen recordings documenting Bob IDE usage
-and the WatsonxCritic pipeline running end-to-end. These are required by the
-hackathon judging rubric to validate Bob usage throughout development.
+This directory holds all visual evidence for the WatsonxCritic hackathon submission.
 
-## Screenshots Present
+---
 
-| Filename | What it shows |
-|----------|----------------|
-| `bob-session-vulnerable-app-review.jpeg` | Bob task session — `vulnerable_app.py` Actor-Critic security review |
-| `bob-session-test-py-review.png` | Bob task session — `test.py` Actor-Critic security review |
-| `Mcp_server.png` | MCP server registered and active in Bob IDE |
-| `Behaviourl.jpeg` | watsonx Orchestrate Security Approver Agent behaviour screen |
-| `Tools in watsonxCritic copy 2.jpeg` | watsonx Orchestrate — `watsonx_security_audit` tool registered |
-| `Agent_test.jpeg` | watsonx Orchestrate — Agent responding with PR REJECTED decision |
-| `Test resul of agent.jpeg` | watsonx Orchestrate — Agent test result output |
+## ⚠️ Action Required: Bob Task Session Summary Screenshots
 
-## How These Were Captured
+The hackathon judging rubric requires **IBM Bob task session summary screenshots** —
+screenshots of the **Tasks panel** in the Bob IDE left sidebar that shows:
+- The task title (original prompt)
+- Every tool call Bob made (`read_file`, `use_skill`, `mcp__watsonx-critic__watsonx_security_audit`, `write_file`, etc.)
+- Token usage and elapsed time
 
-### Bob IDE sessions (Windows)
+**These are NOT the same as screenshots of the output files Bob produced.**
 
-1. Completed a task in Bob IDE (SecurityReviewer mode)
-2. Opened the **Task** panel in the left sidebar and clicked the completed task
-3. The consumption summary shows token usage, tool calls, and time elapsed
-4. Captured with **Win + Shift + S** (Snipping Tool)
-5. Saved into this directory
+See [`BOB_TASK_SESSIONS.md`](../BOB_TASK_SESSIONS.md) for the exact capture steps.
 
-### watsonx Orchestrate screens
+### Required task session screenshots still needed:
 
-1. Logged into IBM Cloud → launched the watsonx Orchestrate instance
-2. Navigated to the Security Approver Agent and Tools screens
-3. Captured with **Win + Shift + S** (Snipping Tool)
-4. Saved into this directory
-
-## What Each Screenshot Proves
-
-| Screenshot | Judging rubric evidence |
+| Filename to save | What to capture |
 |---|---|
-| `bob-session-vulnerable-app-review.jpeg` | Bob was actively used to run the Actor-Critic review skill on `vulnerable_app.py` |
-| `bob-session-test-py-review.png` | Bob was actively used to run the Actor-Critic review skill on `test.py` |
-| `Mcp_server.png` | The `watsonx_security_audit` MCP tool is registered in Bob IDE and callable |
-| `Tools in watsonxCritic copy 2.jpeg` | The MCP tool is discoverable inside watsonx Orchestrate |
-| `Behaviourl.jpeg` | The Security Approver Agent is configured with its instruction persona |
-| `Agent_test.jpeg` | Live end-to-end test: agent received a SQL-injection diff and responded PR REJECTED |
-| `Test resul of agent.jpeg` | Confirms the REJECT output with CWE-89 reasoning from IBM Granite |
+| `bob-task-session-vulnerable-app.png` | Bob Tasks panel → the session that produced `review_summary/vulnerable_app_review.md` |
+| `bob-task-session-test-py.png` | Bob Tasks panel → the session that produced `review_summary/test_py_review.md` |
+| `bob-task-session-mcp-server-build.png` | Bob Tasks panel → the session where `watsonx_mcp_server.py` was built |
 
-## Supplementary evidence
+---
 
-The full written Actor-Critic outputs are also committed in [`review_summary/`](../review_summary/):
-- `vulnerable_app_review.md` — full Actor-Critic report for `vulnerable_app.py`
-- `test_py_review.md` — full Actor-Critic report for `test.py`
-- `requirements_txt_review.md` — dependency audit report
+## Current Screenshot Inventory
 
-These Markdown reports supplement the screenshots.
+### Bob IDE screenshots (currently in repo)
+
+| File | What it shows | Task session summary? |
+|---|---|---|
+| `bob-session-vulnerable-app-review.jpeg` | Review **report output** rendered in Bob's markdown preview panel | ⚠️ No — shows output, not task panel |
+| `bob-session-test-py-review.png` | Review **report output** rendered in Bob's markdown preview panel | ⚠️ No — shows output, not task panel |
+| `Mcp_server.png` | Source code editor showing `watsonx_mcp_server.py` open in Bob | ⚠️ No — shows source file, not task panel |
+
+### watsonx Orchestrate screenshots (currently in repo)
+
+| File | What it shows | Judging value |
+|---|---|---|
+| `Agent_test.jpeg` | Live agent test — PR REJECTED response with CWE-89 | ✅ Strong end-to-end evidence |
+| `Test resul of agent.jpeg` | Same agent test result (full view) | ✅ Corroborates live test |
+| `Behaviourl.jpeg` | Security Approver Agent — Behavior tab with instruction prompt visible | ✅ Agent configuration evidence |
+| `Tools in watsonxCritic copy 2.jpeg` | Security Approver Agent — Tools tab showing `WatsonxCritic:watsonx_security_audit` MCP tool registered | ✅ MCP tool integration evidence |
+
+---
+
+## What Each Existing Screenshot Proves
+
+### `bob-session-vulnerable-app-review.jpeg`
+Shows Bob's full Actor-Critic security report for `vulnerable_app.py`:
+- Executive Summary with 10 Actor candidates, 9 Critic TPs, 0 FPs
+- Finding Summary table: F-01 CRITICAL (CWE-89), F-02 HIGH (CWE-798), 6 more findings
+- Severity upgrade: F-01 raised HIGH → CRITICAL by Critic (persistent DB context)
+- Production Readiness verdict: ❌ Not production-ready
+
+**This file proves the quality of Bob's output. Combined with a task session screenshot, it proves Bob did the work.**
+
+### `bob-session-test-py-review.png`
+Shows Bob's Actor-Critic report for `test.py`:
+- 10 Actor candidates, 2 Critic FP dismissals (correctly dismissed RFC-2606 domain as non-PII)
+- 8 confirmed findings including SQL injection (CWE-89) with working PoC at line 35
+
+### `Mcp_server.png`
+Shows `watsonx_mcp_server.py` open in Bob IDE with the `@mcp.tool()` decorator
+and `watsonx_security_audit` function visible — confirms the MCP tool implementation.
+
+### `Agent_test.jpeg` + `Test resul of agent.jpeg`
+Live watsonx Orchestrate test result — the Security Approver Agent received the
+SQL-injection diff and responded:
+> **PR REJECTED: CWE-89: Improper Neutralization of Special Elements used in an
+> SQL Command ('SQL Injection') — the query is built by concatenating untrusted
+> input (`uid`) directly into the SQL statement.**
+> *Reviewed by: Security Approver Agent | IBM Granite | watsonx Orchestrate*
+
+### `Behaviourl.jpeg`
+Shows the Security Approver Agent **Behavior** configuration tab in watsonx Orchestrate:
+- Agent name: `Security Approver Agent`
+- Instructions: "You are a Tech Lead. Your job is to review the SARIF v2.1.0 JSON
+  reports generated by the watsonx.ai Critic. If there are HIGH severity issues,
+  reject the PR..."
+
+### `Tools in watsonxCritic copy 2.jpeg`
+Shows the **Tools** tab of the Security Approver Agent in watsonx Orchestrate with
+`WatsonxCritic:watsonx_security_audit` registered as an MCP tool — Type: MCP —
+"Sends code diffs to watsonx.ai for OWASP security analysis."
+
+---
+
+## How to Capture the Missing Task Session Screenshots
+
+See [`BOB_TASK_SESSIONS.md`](../BOB_TASK_SESSIONS.md) — full step-by-step instructions.
+
+**Quick summary:**
+1. Open Bob IDE in this workspace
+2. Click the **Tasks** icon in the left sidebar
+3. Click the completed task (e.g., the vulnerable_app.py review session)
+4. Scroll through the task to show tool calls and the consumption summary
+5. Press **Win + Shift + S** and save to this `screenshots/` directory
+6. `git add screenshots/ && git commit -m "chore: add Bob task session screenshots" && git push`

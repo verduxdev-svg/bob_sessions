@@ -5,6 +5,29 @@
 
 ---
 
+## Bob 2.0 — Step-by-Step Workflow
+
+Every step of the pipeline is executed by a specific Bob 2.0 feature. This table
+maps the workflow to the exact Bob capability that runs it.
+
+| Step | What happens | Bob 2.0 feature used | Evidence |
+|---|---|---|---|
+| 1 | Developer types `@vulnerable_app.py Run the security-actor-critic-review skill` | **Agent mode** — Bob receives the prompt and autonomously plans the full multi-step sequence | [`screenshots/bob-session-vulnerable-app-review.jpeg`](screenshots/bob-session-vulnerable-app-review.jpeg) |
+| 2 | Bob reads the target file | **`@filename` context injection** — file content injected into context with zero copy-paste | Agent mode tool call: `read_file` |
+| 3 | Bob loads the 88-section Actor-Critic methodology | **Skills API (`use_skill`)** — `use_skill "review"` loads the full skill into the session | [`.bob/skills/review/SKILL.md`](.bob/skills/review/SKILL.md) |
+| 4 | Actor pass: 10 vulnerability candidates enumerated | **Agent mode** — Bob runs the Actor pass per skill §49, calling tools in parallel where possible | [`review_summary/vulnerable_app_review.md`](review_summary/vulnerable_app_review.md) |
+| 5 | Critic pass: FPs dismissed, severities adjusted, F-01 raised HIGH→CRITICAL | **Agent mode** — Bob runs the independent Critic pass, labelling TP/FP per evidence | [`review_summary/vulnerable_app_review.md`](review_summary/vulnerable_app_review.md) |
+| 6 | Code diff sent to IBM Granite on watsonx.ai; SARIF v2.1.0 returned | **MCP tool integration** — `mcp__watsonx-critic__watsonx_security_audit` called natively mid-session | [`.bob/mcp.json`](.bob/mcp.json) · [`watsonx_mcp_server.py`](watsonx_mcp_server.py) |
+| 7 | Full report written to `review_summary/` | **Write-guard file regex** — writes only to `review_summary/.*\.md$`; source files are protected | [`.bob/custom_modes.yaml`](.bob/custom_modes.yaml) |
+| 8 | SARIF report routed to Security Approver Agent in watsonx Orchestrate | **SecurityReviewer custom mode** + ngrok tunnel → Orchestrate MCP tool call | [`screenshots/Agent_test.jpeg`](screenshots/Agent_test.jpeg) |
+| 9 | Agent autonomously issues PR REJECTED with CWE-89 and remediation | **watsonx Orchestrate** agent — IBM Granite model with SARIF-parsing instruction prompt | [`screenshots/Agent_test.jpeg`](screenshots/Agent_test.jpeg) |
+
+> **Bob 2.0 features used:** Agent mode · SecurityReviewer custom mode · Skills API (`use_skill`) ·
+> MCP tool integration · Parallel tool calls · Write-guard file regex · `@filename` context injection ·
+> Todo list task tracking
+
+---
+
 ## Live Demo Result
 
 The pipeline was tested end-to-end during this submission. The Security Approver Agent
@@ -327,16 +350,34 @@ Full architecture and ngrok setup: [`ARCHITECTURE.md`](ARCHITECTURE.md)
 
 ## Session Evidence
 
-| Evidence type | Location |
+### Bob IDE session evidence (output previews — in repo)
+
+| Evidence type | Screenshot | What it shows |
+|---|---|---|
+| Bob review output — `vulnerable_app.py` | [`screenshots/bob-session-vulnerable-app-review.jpeg`](screenshots/bob-session-vulnerable-app-review.jpeg) | Full Actor-Critic report rendered in Bob preview: 8 findings, CRITICAL SQL injection, 0 FPs |
+| Bob review output — `test.py` | [`screenshots/bob-session-test-py-review.png`](screenshots/bob-session-test-py-review.png) | Full Actor-Critic report: 8 findings, 2 FPs dismissed, SQL injection PoC at line 35 |
+| MCP server source in Bob editor | [`screenshots/Mcp_server.png`](screenshots/Mcp_server.png) | `watsonx_mcp_server.py` open in Bob with `@mcp.tool()` and `watsonx_security_audit` visible |
+
+> **⚠️ Task session summary screenshots** (showing Bob's Tasks panel with tool call logs and
+> token usage) are captured separately. See [`BOB_TASK_SESSIONS.md`](BOB_TASK_SESSIONS.md)
+> for capture instructions and add them as `screenshots/bob-task-session-*.png`.
+
+### watsonx Orchestrate evidence (in repo)
+
+| Evidence type | Screenshot | What it shows |
+|---|---|---|
+| Orchestrate agent live test (PR REJECTED) | [`screenshots/Agent_test.jpeg`](screenshots/Agent_test.jpeg) | Agent receives SQL-injection diff → responds PR REJECTED + CWE-89 |
+| Orchestrate agent test result | [`screenshots/Test resul of agent.jpeg`](<screenshots/Test resul of agent.jpeg>) | Full PR REJECTED output with sign-off by Security Approver Agent |
+| Orchestrate agent behaviour config | [`screenshots/Behaviourl.jpeg`](screenshots/Behaviourl.jpeg) | Agent Behavior tab: name, instruction prompt, Tech Lead persona |
+| Orchestrate MCP tool registered | [`screenshots/Tools in watsonxCritic copy 2.jpeg`](<screenshots/Tools in watsonxCritic copy 2.jpeg>) | Tools tab: `WatsonxCritic:watsonx_security_audit` — Type: MCP |
+
+### Written review artifacts (in repo)
+
+| Artifact | Location |
 |---|---|
-| Bob session — `vulnerable_app.py` review | [`screenshots/bob-session-vulnerable-app-review.jpeg`](screenshots/bob-session-vulnerable-app-review.jpeg) |
-| Bob session — `test.py` review | [`screenshots/bob-session-test-py-review.png`](screenshots/bob-session-test-py-review.png) |
-| MCP server in Bob IDE | [`screenshots/Mcp_server.png`](screenshots/Mcp_server.png) |
-| Orchestrate agent behaviour | [`screenshots/Behaviourl.jpeg`](screenshots/Behaviourl.jpeg) |
-| Orchestrate tools registered | [`screenshots/Tools in watsonxCritic copy 2.jpeg`](<screenshots/Tools in watsonxCritic copy 2.jpeg>) |
-| Orchestrate agent live test (PR REJECTED) | [`screenshots/Agent_test.jpeg`](screenshots/Agent_test.jpeg) |
-| Orchestrate agent test result | [`screenshots/Test resul of agent.jpeg`](<screenshots/Test resul of agent.jpeg>) |
-| Actor-Critic review reports | [`review_summary/`](review_summary/) |
+| `vulnerable_app.py` full Actor-Critic report + SARIF v2.1.0 | [`review_summary/vulnerable_app_review.md`](review_summary/vulnerable_app_review.md) |
+| `test.py` full Actor-Critic report + SARIF v2.1.0 | [`review_summary/test_py_review.md`](review_summary/test_py_review.md) |
+| `requirements.txt` supply-chain audit | [`review_summary/requirements_txt_review.md`](review_summary/requirements_txt_review.md) |
 
 ---
 
