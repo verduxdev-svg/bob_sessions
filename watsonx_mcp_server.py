@@ -1,9 +1,13 @@
 import os
+from pathlib import Path
 import requests
 from dotenv import load_dotenv
 from mcp.server import MCPServer
 
-load_dotenv()
+# Explicitly load .env from the directory where this script lives
+script_dir = Path(__file__).resolve().parent
+dotenv_path = script_dir / ".env"
+load_dotenv(dotenv_path=dotenv_path)
 
 mcp = MCPServer("WatsonxCritic")
 
