@@ -1,7 +1,7 @@
 {
   "mcpServers": {
     "watsonx-critic": {
-      "command": "C:/Python314/python.exe",
+      "command": "python",
       "args": [
         "d:/Promt/bob_sessions/watsonx_mcp_server.py"
       ],     }
