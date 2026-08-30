@@ -4,6 +4,6 @@
       "command": "python",
       "args": [
         "d:/Promt/bob_sessions/watsonx_mcp_server.py"
-      ],     }
+      ]    }
   }
 }
