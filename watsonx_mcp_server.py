@@ -2,8 +2,13 @@ import argparse
 import os
 from pathlib import Path
 import requests
+import uvicorn
 from dotenv import load_dotenv
 from mcp.server.mcpserver import MCPServer as FastMCP
+from starlette.applications import Starlette
+from starlette.requests import Request
+from starlette.responses import RedirectResponse
+from starlette.routing import Mount, Route
 
 # Explicitly load .env from the directory where this script lives
 script_dir = Path(__file__).resolve().parent
@@ -74,13 +79,26 @@ if __name__ == "__main__":
         help="Run in HTTP/SSE mode on localhost:8000 (for ngrok / watsonx Orchestrate)"
     )
     parser.add_argument("--port", type=int, default=8000, help="Port for HTTP mode (default: 8000)")
-    parser.add_argument("--host", default="127.0.0.1", help="Host for HTTP mode (default: 127.0.0.1)")
+    parser.add_argument("--host", default="0.0.0.0", help="Host for HTTP mode (default: 0.0.0.0)")
     args = parser.parse_args()
 
     if args.http:
         print(f"[WatsonxCritic] Starting HTTP/SSE MCP server on http://{args.host}:{args.port}")
         print("[WatsonxCritic] Expose publicly with:  ngrok http", args.port)
-        mcp.run(transport="streamable-http", host=args.host, port=args.port)
+
+        # Wrap MCP SSE app with a root redirect so Orchestrate's gateway probe
+        # hits / → redirects to /sse instead of getting a 404.
+        async def root_redirect(request: Request) -> RedirectResponse:
+            return RedirectResponse(url="/sse")
+
+        sse_app = mcp.sse_app()
+        app = Starlette(
+            routes=[
+                Route("/", endpoint=root_redirect),
+                Mount("/", app=sse_app),
+            ]
+        )
+        uvicorn.run(app, host=args.host, port=args.port)
     else:
         # Default: stdio transport — used by Bob IDE via .bob/mcp.json
         mcp.run(transport="stdio")
