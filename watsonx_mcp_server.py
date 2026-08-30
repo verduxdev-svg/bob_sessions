@@ -1,26 +1,30 @@
+import argparse
 import os
 from pathlib import Path
 import requests
 from dotenv import load_dotenv
-from mcp.server import MCPServer
+from mcp.server.mcpserver import MCPServer as FastMCP
 
 # Explicitly load .env from the directory where this script lives
 script_dir = Path(__file__).resolve().parent
 dotenv_path = script_dir / ".env"
 load_dotenv(dotenv_path=dotenv_path)
 
-mcp = MCPServer("WatsonxCritic")
+mcp = FastMCP("WatsonxCritic")
+
 
 def get_iam_token() -> str:
     """Programmatically generate an IAM access token."""
     api_key = os.getenv("IBM_CLOUD_API_KEY")
+    if not api_key:
+        raise ValueError("IBM_CLOUD_API_KEY environment variable is not set.")
     url = "https://iam.cloud.ibm.com/identity/token"
     headers = {"Content-Type": "application/x-www-form-urlencoded"}
     data = f"grant_type=urn:ibm:params:oauth:grant-type:apikey&apikey={api_key}"
-    
     response = requests.post(url, headers=headers, data=data)
     response.raise_for_status()
     return response.json()["access_token"]
+
 
 @mcp.tool()
 def watsonx_security_audit(code_diff: str) -> str:
@@ -30,16 +34,15 @@ def watsonx_security_audit(code_diff: str) -> str:
     """
     token = get_iam_token()
     project_id = os.getenv("WATSONX_PROJECT_ID")
-    base_url = os.getenv("WATSONX_URL")
-    
-    prompt = f"""
-    You are an expert security auditor. Review the following code diff against OWASP Top 10 standards.
-    Format your response with a Markdown summary followed by a valid SARIF v2.1.0 JSON block containing the findings.
-    
-    Code Diff:
-    {code_diff}
-    """
-    
+    base_url = os.getenv("WATSONX_URL", "https://us-south.ml.cloud.ibm.com")
+
+    prompt = f"""You are an expert security auditor. Review the following code diff against OWASP Top 10 standards.
+Format your response with a Markdown summary followed by a valid SARIF v2.1.0 JSON block containing the findings.
+
+Code Diff:
+{code_diff}
+"""
+
     payload = {
         "input": prompt,
         "parameters": {
@@ -50,19 +53,34 @@ def watsonx_security_audit(code_diff: str) -> str:
         "model_id": "ibm/granite-4-h-small",
         "project_id": project_id
     }
-    
+
     headers = {
         "Content-Type": "application/json",
         "Accept": "application/json",
         "Authorization": f"Bearer {token}"
     }
-    
+
     endpoint = f"{base_url}/ml/v1/text/generation?version=2023-05-29"
     response = requests.post(endpoint, headers=headers, json=payload)
     response.raise_for_status()
-    
     return response.json()["results"][0]["generated_text"]
 
+
 if __name__ == "__main__":
-    
-    mcp.run(transport='stdio')
+    parser = argparse.ArgumentParser(description="WatsonxCritic MCP Server")
+    parser.add_argument(
+        "--http",
+        action="store_true",
+        help="Run in HTTP/SSE mode on localhost:8000 (for ngrok / watsonx Orchestrate)"
+    )
+    parser.add_argument("--port", type=int, default=8000, help="Port for HTTP mode (default: 8000)")
+    parser.add_argument("--host", default="127.0.0.1", help="Host for HTTP mode (default: 127.0.0.1)")
+    args = parser.parse_args()
+
+    if args.http:
+        print(f"[WatsonxCritic] Starting HTTP/SSE MCP server on http://{args.host}:{args.port}")
+        print("[WatsonxCritic] Expose publicly with:  ngrok http", args.port)
+        mcp.run(transport="streamable-http", host=args.host, port=args.port)
+    else:
+        # Default: stdio transport — used by Bob IDE via .bob/mcp.json
+        mcp.run(transport="stdio")

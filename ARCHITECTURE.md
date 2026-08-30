@@ -123,3 +123,94 @@ Additions for reliability, auditability, and deeper GitHub integration.
 | SARIF file writer | Persist audit reports to a `reports/` directory for post-session review and trend tracking |
 | `watsonx_batch_audit` tool | Accepts multiple diffs; aggregates and deduplicates SARIF results across all changed files |
 | GitHub Actions PR integration | Trigger the MCP audit on every PR via `gh` CLI; post SARIF results as PR annotations |
+
+---
+
+## §6 — watsonx Orchestrate Integration (Security Approver Agent)
+
+This section describes the extended architecture that connects the local MCP server to IBM
+watsonx Orchestrate via an ngrok tunnel, enabling a manager-persona autonomous agent to make
+PR approval/rejection decisions based on SARIF output.
+
+### Transport Layer Duality
+
+The server supports two transports via the `--http` flag:
+
+| Transport | Command | Used By |
+|---|---|---|
+| `stdio` (default) | `python watsonx_mcp_server.py` | Bob IDE via `.bob/mcp.json` |
+| `streamable-http` | `python watsonx_mcp_server.py --http` | ngrok → watsonx Orchestrate |
+
+### Orchestrate Integration Data Flow
+
+```
+Developer submits PR diff
+       │
+       ▼
+Bob IDE (SecurityReviewer mode)
+  └─ watsonx_security_audit(code_diff)  ← MCP stdio
+       │
+       ▼
+watsonx_mcp_server.py  ← starts on port 8000 in HTTP mode
+       │
+       ▼
+ngrok tunnel (ngrok http 8000)
+  └─ https://<subdomain>.ngrok-free.app  ← public HTTPS endpoint
+       │
+       ▼
+watsonx Orchestrate — Tool Registry
+  └─ watsonx_security_audit tool registered via MCP server URL
+       │
+       ▼
+Security Approver Agent (IBM Granite model in Orchestrate)
+  └─ Instruction: "Review SARIF. If HIGH/CRITICAL → REJECT. If mitigated → APPROVE."
+       │
+       ▼
+PR Decision: APPROVED / CONDITIONALLY APPROVED / REJECTED
+  └─ Notification sent to developer with finding details
+```
+
+### ngrok Setup (step-by-step)
+
+1. **Download ngrok:** https://ngrok.com/download  
+2. **Create free account:** https://dashboard.ngrok.com  
+3. **Authenticate:**
+   ```bash
+   ngrok config add-authtoken <YOUR_NGROK_AUTHTOKEN>
+   ```
+   Get your authtoken from: https://dashboard.ngrok.com/get-started/your-authtoken
+
+4. **Start the HTTP MCP server** (Terminal 1):
+   ```bash
+   # Windows
+   start_server.bat
+
+   # Linux / macOS
+   ./start_server.sh
+   ```
+
+5. **Start the tunnel** (Terminal 2):
+   ```bash
+   ngrok http 8000
+   ```
+   Note the public URL, e.g. `https://abc123.ngrok-free.app`
+
+6. **Register in watsonx Orchestrate:**
+   - Discover → Tools → Add a tool → MCP server
+   - URL: `https://abc123.ngrok-free.app`
+   - Transport: Streamable HTTP (SSE)
+   - The `watsonx_security_audit` tool will be auto-discovered
+
+### Security Approver Agent Configuration
+
+Full agent specification including the instruction prompt, tool connection steps, and test
+invocation examples are documented in [`orchestrate-agent-config.md`](orchestrate-agent-config.md).
+
+**Agent name:** `Security Approver Agent`  
+**Model:** IBM Granite (Orchestrate default)  
+**Tool:** `watsonx_security_audit` (connected via ngrok tunnel)  
+**Decision logic:**
+- 🔴 CRITICAL or HIGH findings → **PR REJECTED** — developer notified with finding list
+- 🟠 MEDIUM only → **CONDITIONAL APPROVAL** — follow-up tickets required
+- 🟡 LOW / INFO only → **PR APPROVED**
+
